@@ -1,1 +1,1 @@
-![Texto Alternativo](https://ibb.co/gjBsqP8)
+![Texto Alternativo](https://postimg.cc/Thp4zGh3)
