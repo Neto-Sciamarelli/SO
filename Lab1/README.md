@@ -1,1 +1,1 @@
-![Texto Alternativo](file:///C:/Users/netos/OneDrive/Imagens/Capturas%20de%20tela/Captura%20de%20tela%202024-03-04%20153750.png)
+![Texto Alternativo]([[file:///C:/Users/netos/OneDrive/Imagens/Capturas%20de%20tela/Captura%20de%20tela%202024-03-04%20153750.png](https://ibb.co/gjBsqP8)https://ibb.co/gjBsqP8](https://ibb.co/gjBsqP8)https://ibb.co/gjBsqP8)
