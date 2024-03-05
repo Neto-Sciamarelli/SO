@@ -1,4 +1,4 @@
-# SO
+# Sistemas Operacionais
 
 Repositório para as atividades em laboratório da disciplina de Sistemas Operacionais.
 
