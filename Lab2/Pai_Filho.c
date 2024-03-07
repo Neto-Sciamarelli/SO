@@ -27,7 +27,7 @@ int main() {
     if (pid == 0) {
         // Código do processo filho
         close(pipe_pai_filho[1]); 
-        char msg_filho[40]; 
+        char msg_filho[60]; 
         read(pipe_pai_filho[0], msg_filho, sizeof(msg_filho)); 
         printf("Filho recebeu: %s\n", msg_filho);
 
@@ -46,7 +46,7 @@ int main() {
 
         // Espera pela resposta do filho
         close(pipe_filho_pai[1]); 
-        char resposta_pai[40]; 
+        char resposta_pai[60]; 
         read(pipe_filho_pai[0], resposta_pai, sizeof(resposta_pai));
         printf("Pai recebeu: %s\n", resposta_pai);
         close(pipe_filho_pai[0]); 
