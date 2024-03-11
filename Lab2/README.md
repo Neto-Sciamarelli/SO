@@ -12,3 +12,6 @@ R: Sim, o controle sobre a execução de cada trecho é feita através do valor 
 R: Sabemos que p número total de processos criados a partir de fork() é 2^n, onde n é o número de forks executados. Então no caso apresentado teremos 2^3 assim tendo 8 processos executados;
 
 # Código 
+
+![Texto Alternativo]()
+
