@@ -2,4 +2,4 @@
 
 # Código
 
-![Texto Alternativo]()
+![Texto Alternativo](https://github.com/Neto-Sciamarelli/SO/blob/main/Lab3/img.PNG)
