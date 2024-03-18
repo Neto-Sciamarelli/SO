@@ -26,46 +26,45 @@ int threadFunction(void* argument) {
     // Modificar o valor da variável compartilhada
     *args->shared_var = 123;
     printf("Child thread depois de modificar: %d\n", *
+*args->shared_var);
+    printf("Child thread exiting\n");
+    return 0;
 }
 
 int main() {
     void* stack;
     pid_t pid;
-    struct shared_data *shared_data;
+    int shared_var = 0; // Esta variável será compartilhada entre o processo pai e a thread (processo filho)
+    thread_args_t args = { .shared_var = &shared_var };
 
-    // Aloca memória para a pilha e para os dados compartilhados
+    // Allocate the stack
     stack = malloc(FIBER_STACK);
-    shared_data = malloc(sizeof(struct shared_data));
-    if (stack == 0 || shared_data == 0) {
-        perror("Error allocating memory");
+    if (stack == 0) {
+        perror("malloc: could not allocate stack");
         exit(1);
     }
 
-    shared_data->value = 0; // Inicializa a variável compartilhada
-
     printf("Creating child thread\n");
-
-    // Cria a thread filha passando 'shared_data' como argumento
+    // Call the clone system call to create the child thread
     pid = clone(&threadFunction, (char*)stack + FIBER_STACK,
-                SIGCHLD | CLONE_FS | CLONE_FILES | CLONE_SIGHAND | CLONE_VM, shared_data);
+                SIGCHLD | CLONE_FS | CLONE_FILES | CLONE_SIGHAND | CLONE_VM, &args);
     if (pid == -1) {
         perror("clone");
         exit(2);
     }
 
-    // Espera a thread filha terminar
+    // Wait for the child thread to exit
     pid = waitpid(pid, 0, 0);
     if (pid == -1) {
         perror("waitpid");
         exit(3);
     }
 
-    // Verifica o valor modificado pela thread filha
-    printf("Child thread modified the value to: %d\n", shared_data->value);
+    // Check the value of shared_var after child thread has modified it
+    printf("Shared variable after child thread: %d\n", shared_var);
 
-    // Libera a memória alocada
+    // Free the stack
     free(stack);
-    free(shared_data);
-    printf("Child thread returned and memory freed.\n");
+    printf("Child thread returned and stack freed.\n");
     return 0;
 }
