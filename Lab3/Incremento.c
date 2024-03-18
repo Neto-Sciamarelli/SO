@@ -23,7 +23,7 @@ struct shared_data {
 int threadFunction(void* argument) {
     struct shared_data *data = (struct shared_data*)argument;
     printf("Child thread executing\n");
-    data->value = 42; // Altera o valor na área compartilhada
+    data->value = 0; // Altera o valor na área compartilhada
     printf("Child thread exiting with value %d\n", data->value);
     return 0;
 }
