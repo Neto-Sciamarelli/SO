@@ -16,15 +16,15 @@
 #define FIBER_STACK 1024*64
 
 struct shared_data {
-    int value; // Variável compartilhada
+    int value; // Variável de inteiros compartilhada
 };
 
-// The child thread will execute this function
+// A função da thread filha
 int threadFunction(void* argument) {
-    struct shared_data *data = (struct shared_data*)argument;
-    printf("Child thread executing\n");
-    data->value = 0; // Altera o valor na área compartilhada
-    printf("Child thread exiting with value %d\n", data->value);
+    struct shared_data *data = (struct shared_data *)argument;
+    printf("Child thread modifying value\n");
+    data->value = 0; // Modifica a variável de inteiros
+    printf("Child thread exiting\n");
     return 0;
 }
 
@@ -33,20 +33,19 @@ int main() {
     pid_t pid;
     struct shared_data *shared_data;
 
+    // Aloca memória para a pilha e para os dados compartilhados
+    stack = malloc(FIBER_STACK);
     shared_data = malloc(sizeof(struct shared_data));
-    if (shared_data == NULL) {
-        perror("malloc: could not allocate shared data");
+    if (stack == 0 || shared_data == 0) {
+        perror("Error allocating memory");
         exit(1);
     }
+
     shared_data->value = 0; // Inicializa a variável compartilhada
 
-    stack = malloc(FIBER_STACK);
-    if (stack == 0) {
-        perror("malloc: could not allocate stack");
-        exit(1);
-    }
-
     printf("Creating child thread\n");
+
+    // Cria a thread filha passando 'shared_data' como argumento
     pid = clone(&threadFunction, (char*)stack + FIBER_STACK,
                 SIGCHLD | CLONE_FS | CLONE_FILES | CLONE_SIGHAND | CLONE_VM, shared_data);
     if (pid == -1) {
@@ -54,18 +53,19 @@ int main() {
         exit(2);
     }
 
-    // Wait for the child thread to exit
-    pid = waitpid(pid, NULL, 0);
+    // Espera a thread filha terminar
+    pid = waitpid(pid, 0, 0);
     if (pid == -1) {
         perror("waitpid");
         exit(3);
     }
 
-    printf("Child thread returned and stack freed. Shared value: %d\n", shared_data->value);
+    // Verifica o valor modificado pela thread filha
+    printf("Child thread modified the value to: %d\n", shared_data->value);
 
-    // Free the resources
+    // Libera a memória alocada
     free(stack);
     free(shared_data);
-
+    printf("Child thread returned and memory freed.\n");
     return 0;
 }
