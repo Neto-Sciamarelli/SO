@@ -11,21 +11,21 @@
 #include <signal.h>
 #include <sched.h>
 #include <stdio.h>
-#include <unistd.h>
 
+// 64kB stack
 #define FIBER_STACK 1024*64
 
-struct shared_data {
-    int value; // Variável de inteiros compartilhada
-};
+typedef struct {
+    int *shared_var;
+} thread_args_t;
 
-// A função da thread filha
+// The child thread will execute this function
 int threadFunction(void* argument) {
-    struct shared_data *data = (struct shared_data *)argument;
-    printf("Child thread modifying value\n");
-    data->value = 0; // Modifica a variável de inteiros
-    printf("Child thread exiting\n");
-    return 0;
+    thread_args_t *args = (thread_args_t *)argument;
+    printf("Child thread antes de modificar: %d\n", *args->shared_var);
+    // Modificar o valor da variável compartilhada
+    *args->shared_var = 123;
+    printf("Child thread depois de modificar: %d\n", *
 }
 
 int main() {
