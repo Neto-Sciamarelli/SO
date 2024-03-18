@@ -24,7 +24,7 @@ int threadFunction(void* argument) {
     thread_args_t *args = (thread_args_t *)argument;
     printf("Child thread antes de modificar: %d\n", *args->shared_var);
     // Modificar o valor da variável compartilhada
-    *args->shared_var = 123;
+    *args->shared_var = 1;
     printf("Child thread depois de modificar: %d\n", *args->shared_var);
     return 0;
 }
