@@ -25,45 +25,44 @@ int threadFunction(void* argument) {
     printf("Child thread antes de modificar: %d\n", *args->shared_var);
     // Modificar o valor da variável compartilhada
     *args->shared_var = 123;
-    printf("Child thread depois de modificar: %d\n", *
-*args->shared_var);
-    printf("Child thread exiting\n");
+    printf("Child thread depois de modificar: %d\n", *args->shared_var);
     return 0;
 }
 
 int main() {
     void* stack;
     pid_t pid;
-    int shared_var = 0; // Esta variável será compartilhada entre o processo pai e a thread (processo filho)
-    thread_args_t args = { .shared_var = &shared_var };
-
-    // Allocate the stack
+    int shared_var = 0; // Esta variável será compartilhada e modificada pela thread filho.
+    
+    // Alocar a stack
     stack = malloc(FIBER_STACK);
     if (stack == 0) {
         perror("malloc: could not allocate stack");
         exit(1);
     }
-
+    
+    thread_args_t args = { .shared_var = &shared_var };
+    
     printf("Creating child thread\n");
-    // Call the clone system call to create the child thread
-    pid = clone(&threadFunction, (char*)stack + FIBER_STACK,
-                SIGCHLD | CLONE_FS | CLONE_FILES | CLONE_SIGHAND | CLONE_VM, &args);
+    // Chamar a chamada de sistema clone para criar a thread filho
+    pid = clone(&threadFunction, (char*) stack + FIBER_STACK,
+    SIGCHLD | CLONE_FS | CLONE_FILES | CLONE_SIGHAND | CLONE_VM, &args);
     if (pid == -1) {
         perror("clone");
         exit(2);
     }
-
-    // Wait for the child thread to exit
-    pid = waitpid(pid, 0, 0);
+    
+    // Esperar pela thread filho sair
+    pid = waitpid(pid, NULL, 0);
     if (pid == -1) {
         perror("waitpid");
         exit(3);
     }
-
-    // Check the value of shared_var after child thread has modified it
-    printf("Shared variable after child thread: %d\n", shared_var);
-
-    // Free the stack
+    
+    // Aqui a variável shared_var deve ter sido modificada pelo filho
+    printf("Valor da shared_var no pai após a thread filho modificar: %d\n", shared_var);
+    
+    // Liberar a stack
     free(stack);
     printf("Child thread returned and stack freed.\n");
     return 0;
