@@ -60,7 +60,7 @@ int main() {
     }
     
     // Aqui a variável shared_var deve ter sido modificada pelo filho
-    printf("Valor da shared_var no pai após a thread filho modificar: %d\n", shared_var);
+    printf("Valor da variável no pai após a thread filho modificar: %d\n", shared_var);
     
     // Liberar a stack
     free(stack);
