@@ -11,53 +11,61 @@
 #include <signal.h>
 #include <sched.h>
 #include <stdio.h>
+#include <unistd.h>
 
-// 64kB stack
 #define FIBER_STACK 1024*64
 
-// Variável compartilhada entre o processo pai e o processo filho
-int Value = 0;
+struct shared_data {
+    int value; // Variável compartilhada
+};
 
-// O processo filho executará esta função
+// The child thread will execute this function
 int threadFunction(void* argument) {
-    printf("Valor compartilhado no processo filho: %d\n", Value);
-    Value++; // Incrementa o valor compartilhado
-    printf("Child thread exiting\n");
+    struct shared_data *data = (struct shared_data*)argument;
+    printf("Child thread executing\n");
+    data->value = 42; // Altera o valor na área compartilhada
+    printf("Child thread exiting with value %d\n", data->value);
     return 0;
 }
 
 int main() {
     void* stack;
     pid_t pid;
+    struct shared_data *shared_data;
 
-    // Aloca a pilha
+    shared_data = malloc(sizeof(struct shared_data));
+    if (shared_data == NULL) {
+        perror("malloc: could not allocate shared data");
+        exit(1);
+    }
+    shared_data->value = 0; // Inicializa a variável compartilhada
+
     stack = malloc(FIBER_STACK);
     if (stack == 0) {
-        perror("malloc: não foi possível alocar a pilha");
+        perror("malloc: could not allocate stack");
         exit(1);
     }
 
     printf("Creating child thread\n");
-    // Chama a chamada de sistema clone para criar a thread filha
     pid = clone(&threadFunction, (char*)stack + FIBER_STACK,
-                SIGCHLD | CLONE_FS | CLONE_FILES | CLONE_SIGHAND | CLONE_VM, 0);
+                SIGCHLD | CLONE_FS | CLONE_FILES | CLONE_SIGHAND | CLONE_VM, shared_data);
     if (pid == -1) {
         perror("clone");
         exit(2);
     }
 
-    // Espera a thread filha terminar
-    pid = waitpid(pid, 0, 0);
+    // Wait for the child thread to exit
+    pid = waitpid(pid, NULL, 0);
     if (pid == -1) {
         perror("waitpid");
         exit(3);
     }
 
-    // Mostra o valor compartilhado após o retorno da thread filha
-    printf("Valor compartilhado após a execução do processo filho: %d\n", Value);
+    printf("Child thread returned and stack freed. Shared value: %d\n", shared_data->value);
 
-    // Libera a pilha
+    // Free the resources
     free(stack);
-    printf("Child thread returned and stack freed.\n");
+    free(shared_data);
+
     return 0;
 }
