@@ -4,4 +4,4 @@ Nesse código primeiramente usamos a função clone(), que de certa forma é par
 
 # Código
 
-![Texto Alternativo](https://github.com/Neto-Sciamarelli/SO/blob/main/Lab3/img3.PNG)
+![Texto Alternativo](https://github.com/Neto-Sciamarelli/SO/blob/main/Lab3/Imagem3.PNG)
