@@ -23,21 +23,21 @@ void *pessoa(void *arg) {
     if(direcao == -1 || p->direcao == direcao) {
     	direcao = p->direcao;
     	tempoFinal = p->chegada+10;
-	}else {
-		pthread_mutex_unlock(&mutex);
-		sleep(tempoFinal-p->chegada);
-		pthread_mutex_lock(&mutex);
-		
-		direcao = p->direcao;
-		tempoFinal+=10;
-	}
-	
+    }else {
 	pthread_mutex_unlock(&mutex);
+	sleep(tempoFinal-p->chegada);
+	pthread_mutex_lock(&mutex);
+		
+	direcao = p->direcao;
+	tempoFinal+=10;
+    }
+	
+    pthread_mutex_unlock(&mutex);
 }
 
 int main() {
-	setlocale(LC_ALL, "Portuguese");
-	int i, num_pessoas;
+    setlocale(LC_ALL, "Portuguese");
+    int i, num_pessoas;
     FILE *file;
     file = fopen("entrada.txt", "r"); // Abre o arquivo para leitura
 
