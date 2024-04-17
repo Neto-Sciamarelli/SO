@@ -13,31 +13,43 @@ typedef struct {
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 int direcao = -1;
 int tempoFinal = 0;
+int espera = 0;
 
 void *pessoa(void *arg) {
     Pessoa *p = (Pessoa *)arg;
-    
-    sleep(p->chegada);
     pthread_mutex_lock(&mutex);
     
     if(direcao == -1 || p->direcao == direcao) {
-    	direcao = p->direcao;
-    	tempoFinal = p->chegada+10;
-    }else {
-	pthread_mutex_unlock(&mutex);
-	sleep(tempoFinal-p->chegada);
-	pthread_mutex_lock(&mutex);
-		
-	direcao = p->direcao;
-	tempoFinal+=10;
-    }
+    	if(p->chegada > tempoFinal && espera > 0) {
+    		espera = 0;
+    		direcao = p->direcao*(-1);
+    		tempoFinal+=10;
+    		espera++;
+		}else {
+			direcao = p->direcao;
+    		tempoFinal = p->chegada+10;
+		}	
+	}else {
+		if(p->chegada > tempoFinal) {
+			if(espera > 0) {
+				espera = 0;
+				tempoFinal+=10;
+				espera++;
+			}else {
+				tempoFinal = p->chegada+10;
+			}
+		}else {
+			espera++;
+		}
+	}
 	
-    pthread_mutex_unlock(&mutex);
+	
+	pthread_mutex_unlock(&mutex);
 }
 
 int main() {
-    setlocale(LC_ALL, "Portuguese");
-    int i, num_pessoas;
+	setlocale(LC_ALL, "Portuguese");
+	int i, num_pessoas;
     FILE *file;
     file = fopen("entrada.txt", "r"); // Abre o arquivo para leitura
 
@@ -61,12 +73,12 @@ int main() {
     pthread_t threads[num_pessoas];
     for (i = 0; i < num_pessoas; ++i) {
         pthread_create(&threads[i], NULL, pessoa, (void *)&pessoas[i]);
-    }
-
-    // Aguarda o término de cada thread
-    for (i = 0; i < num_pessoas; ++i) {
         pthread_join(threads[i], NULL);
     }
+    
+    if(espera > 0) {
+		tempoFinal+=10;
+	}
 
     printf("O momento final de parada da escada rolante é %d\n", tempoFinal);
 
