@@ -1,91 +1,103 @@
+#include <locale.h>
 #include <stdio.h>
-#include <unistd.h>
 #include <stdlib.h>
 #include <sys/wait.h>
-#include <locale.h>
+#include <unistd.h>
 
-// Estrutura para os parâmetros de cada pessoa
+// Estrutura para os parÃ¢metros de cada pessoa
 typedef struct {
-    int chegada;
-    int direcao;
+  int chegada;
+  int direcao;
 } Pessoa;
 
-// Função que representa o comportamento de uma pessoa
-void pessoa(Pessoa *p, int fd[]) {
-    close(fd[0]); // Fecha a extremidade de leitura do pipe
-    sleep(p->chegada);
-    
-    write(fd[1], p, sizeof(Pessoa)); // Escreve os dados da pessoa no pipe
-    close(fd[1]); // Fecha a extremidade de escrita do pipe
+// FunÃ§Ã£o para calcular o tempo final da escada rolante
+int pessoa(Pessoa *pessoas, int num_pessoas) {
+  int direcao = -1;
+  int tempoFinal = 0;
+  int espera = 0;
+
+  for (int i = 0; i < num_pessoas; ++i) {
+    if (direcao == -1 || pessoas[i].direcao == direcao) {
+      if (pessoas[i].chegada > tempoFinal && espera > 0) {
+        espera = 0;
+        direcao = pessoas[i].direcao * (-1);
+        tempoFinal += 10;
+        espera++;
+      } else {
+        direcao = pessoas[i].direcao;
+        tempoFinal = pessoas[i].chegada + 10;
+      }
+    } else {
+      if (pessoas[i].chegada > tempoFinal) {
+        if (espera > 0) {
+          espera = 0;
+          tempoFinal += 10;
+          espera++;
+        } else {
+          tempoFinal = pessoas[i].chegada + 10;
+        }
+      } else {
+        espera++;
+      }
+    }
+  }
+
+  if (espera > 0) {
+    tempoFinal += 10;
+  }
+
+  return tempoFinal;
 }
 
 int main() {
-    setlocale(LC_ALL, "Portuguese");
-    int i, num_pessoas;
-    FILE *file;
-    file = fopen("entrada.txt", "r"); // Abre o arquivo para leitura
+  setlocale(LC_ALL, "Portuguese");
+  int num_pessoas;
+  FILE *file;
+  file = fopen("entrada.txt", "r"); // Abre o arquivo para leitura
 
-    if (file == NULL) {
-        printf("Erro ao abrir o arquivo.\n");
-        return 1;
-    }
+  if (file == NULL) {
+    printf("Erro ao abrir o arquivo.\n");
+    return 1;
+  }
 
-    fscanf(file, "%d", &num_pessoas); // Lê o número de pessoas
+  fscanf(file, "%d", &num_pessoas); // LÃª o nÃºmero de pessoas
 
-    Pessoa pessoas[num_pessoas];
+  Pessoa pessoas[num_pessoas];
 
-    // Lê os dados de cada pessoa do arquivo
-    for (i = 0; i < num_pessoas; ++i) {
-        fscanf(file, "%d %d", &pessoas[i].chegada, &pessoas[i].direcao);
-    }
+  // LÃª os dados de cada pessoa do arquivo
+  for (int i = 0; i < num_pessoas; ++i) {
+    fscanf(file, "%d %d", &pessoas[i].chegada, &pessoas[i].direcao);
+  }
 
-    fclose(file); // Fecha o arquivo após a leitura
+  fclose(file); // Fecha o arquivo apÃ³s a leitura
 
-    int tempoFinal = 0;
-    int direcao = -1;
+  int fd[2]; // Pipe para comunicaÃ§Ã£o entre pai e filho
+  if (pipe(fd) == -1) {
+    perror("Erro ao criar pipe");
+    exit(EXIT_FAILURE);
+  }
 
-    // Cria um pipe para comunicação entre processos
-    int fd[2];
-    if (pipe(fd) == -1) {
-        perror("pipe");
-        exit(EXIT_FAILURE);
-    }
-
-    // Cria processos para cada pessoa
-    for (i = 0; i < num_pessoas; ++i) {
-        pid_t pid = fork();
-        if (pid == -1) {
-            perror("fork");
-            exit(EXIT_FAILURE);
-        } else if (pid == 0) { // Processo filho
-            pessoa(&pessoas[i], fd);
-            exit(EXIT_SUCCESS);
-        }
-    }
-
-    // Fecha a extremidade de escrita do pipe no processo pai
+  pid_t pid = fork();
+  if (pid == -1) {
+    perror("Erro ao criar processo");
+    exit(EXIT_FAILURE);
+  } else if (pid == 0) {
+    // Processo filho fecha a extremidade de leitura do pipe e escreve o
+    // resultado
+    close(fd[0]);
+    int tempoFinal = pessoa(pessoas, num_pessoas);
+    write(fd[1], &tempoFinal, sizeof(int));
     close(fd[1]);
+    exit(EXIT_SUCCESS);
+  } else {
+    // Processo pai espera pelo processo filho e lÃª o resultado do pipe
+    close(fd[1]);
+    int resultado;
+    wait(NULL);
+    read(fd[0], &resultado, sizeof(int));
+    close(fd[0]);
+    printf("O momento final de parada da escada rolante Ã© %d\n", resultado);
+  }
 
-    // Lê os dados do pipe e determina o tempo final da escada rolante
-    Pessoa p;
-    while (read(fd[0], &p, sizeof(Pessoa)) > 0) {
-        if (direcao == -1 || p.direcao == direcao) {
-            direcao = p.direcao;
-            tempoFinal = p.chegada + 10;
-        } else {
-            sleep(tempoFinal - p.chegada);
-            direcao = p.direcao;
-            tempoFinal += 10;
-        }
-    }
-
-    // Aguarda o término de todos os processos filhos
-    for (i = 0; i < num_pessoas; ++i) {
-        wait(NULL);
-    }
-
-    printf("O momento final de parada da escada rolante é %d\n", tempoFinal);
-
-    return 0;
+  return 0;
 }
-
