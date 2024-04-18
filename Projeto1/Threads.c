@@ -17,14 +17,11 @@ int espera = 0;
 
 void *pessoa(void *arg) {
     Pessoa *p = (Pessoa *)arg;
-    pthread_mutex_lock(&mutex);
     
     if(direcao == -1 || p->direcao == direcao) {
     	if(p->chegada > tempoFinal && espera > 0) {
-    		espera = 0;
     		direcao = p->direcao*(-1);
     		tempoFinal+=10;
-    		espera++;
 		}else {
 			direcao = p->direcao;
     		tempoFinal = p->chegada+10;
@@ -32,9 +29,7 @@ void *pessoa(void *arg) {
 	}else {
 		if(p->chegada > tempoFinal) {
 			if(espera > 0) {
-				espera = 0;
 				tempoFinal+=10;
-				espera++;
 			}else {
 				tempoFinal = p->chegada+10;
 			}
@@ -42,9 +37,6 @@ void *pessoa(void *arg) {
 			espera++;
 		}
 	}
-	
-	
-	pthread_mutex_unlock(&mutex);
 }
 
 int main() {
