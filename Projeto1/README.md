@@ -2,6 +2,10 @@
 
 - Escada Rolante
 
+# Código
+
+![Texto Alternativo]()
+
 # Perguntas
 
 # Questão 01
