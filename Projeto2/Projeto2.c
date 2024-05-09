@@ -37,9 +37,26 @@ void* transferencia(void *arg) {
     return NULL;
 }
 
+void* transferencia2(void *arg) {
+    pthread_mutex_lock(&mutex); // Bloqueia o mutex antes de acessar as variáveis compartilhadas
+    
+    if (to.saldo >= valor) {
+        to.saldo -= valor;
+        form.saldo += valor;
+    }
+
+    printf("Transferência concluída com sucesso!\n");
+    printf("Saldo de c1: %d\n", form.saldo);
+    printf("Saldo de c2: %d\n", to.saldo);
+
+    pthread_mutex_unlock(&mutex); // Libera o mutex após o acesso às variáveis compartilhadas
+    return NULL;
+}
+
 int main() {
     void* stack;
     pthread_t thread_ids[10]; // Utilizar pthread_t para identificadores de thread
+    pthread_t thread_ids2[10]; 
     int i;
 
     // Inicialização das contas
@@ -69,6 +86,18 @@ int main() {
     // Aguarda as threads terminarem
     for (i = 0; i < 10; i++) {
         pthread_join(thread_ids[i], NULL);
+    }
+
+     for (i = 0; i < 10; i++) {
+        if (pthread_create(&thread_ids2[i], NULL, transferencia2, NULL) != 0) {
+            perror("pthread_create");
+            exit(2);
+        }
+    }
+
+    // Aguarda as threads terminarem
+    for (i = 0; i < 10; i++) {
+        pthread_join(thread_ids2[i], NULL);
     }
 
     // Liberação da pilha e do mutex
