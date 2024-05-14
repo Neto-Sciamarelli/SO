@@ -42,11 +42,11 @@ void* transferencia2(void *arg) {
     
     if (to.saldo >= valor) {
         to.saldo -= valor;
-        form.saldo += valor;
+        from.saldo += valor;
     }
 
     printf("Transferência concluída com sucesso!\n");
-    printf("Saldo de c1: %d\n", form.saldo);
+    printf("Saldo de c1: %d\n", from.saldo);
     printf("Saldo de c2: %d\n", to.saldo);
 
     pthread_mutex_unlock(&mutex); // Libera o mutex após o acesso às variáveis compartilhadas
