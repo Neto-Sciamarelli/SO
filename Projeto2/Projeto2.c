@@ -17,7 +17,7 @@ struct conta {
 typedef struct conta conta;
 
 conta from, to;
-int valor;
+int valor, valor2;
 pthread_mutex_t mutex; // Mutex para sincronização
 
 // Função de transferência protegida por mutex
@@ -25,15 +25,13 @@ void *transferencia(void *arg) {
   pthread_mutex_lock(
       &mutex); // Bloqueia o mutex antes de acessar as variáveis compartilhadas
 
-  if (from.saldo == 0) {
-    printf("Saldo insuficiente!\n");
-    pthread_mutex_unlock(&mutex);
-    return NULL;
-  }
-
   if (from.saldo >= valor) {
     from.saldo -= valor;
     to.saldo += valor;
+  } else {
+    printf("Saldo insuficiente!\n");
+    pthread_mutex_unlock(&mutex);
+    return NULL;
   }
 
   printf("Transferência concluída com sucesso!\n");
@@ -49,15 +47,13 @@ void *transferencia2(void *arg) {
   pthread_mutex_lock(
       &mutex); // Bloqueia o mutex antes de acessar as variáveis compartilhadas
 
-  if (to.saldo == 0) {
+  if (to.saldo >= valor2) {
+    to.saldo -= valor2;
+    from.saldo += valor2;
+  } else {
     printf("Saldo insuficiente!\n");
     pthread_mutex_unlock(&mutex);
     return NULL;
-  }
-
-  if (to.saldo >= valor) {
-    to.saldo -= valor;
-    from.saldo += valor;
   }
 
   printf("Transferência concluída com sucesso!\n");
@@ -79,7 +75,8 @@ int main() {
   // Inicialização das contas
   from.saldo = 100;
   to.saldo = 100;
-  valor = 10;
+  valor = 20;
+  valor2 = 10;
 
   pthread_mutex_init(&mutex, NULL); // Inicializa o mutex
 
