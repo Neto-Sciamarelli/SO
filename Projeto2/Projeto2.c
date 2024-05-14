@@ -25,6 +25,12 @@ void *transferencia(void *arg) {
   pthread_mutex_lock(
       &mutex); // Bloqueia o mutex antes de acessar as variáveis compartilhadas
 
+  if (from.saldo == 0) {
+    printf("Saldo insuficiente!\n");
+    pthread_mutex_unlock(&mutex);
+    return NULL;
+  }
+
   if (from.saldo >= valor) {
     from.saldo -= valor;
     to.saldo += valor;
@@ -42,6 +48,12 @@ void *transferencia(void *arg) {
 void *transferencia2(void *arg) {
   pthread_mutex_lock(
       &mutex); // Bloqueia o mutex antes de acessar as variáveis compartilhadas
+
+  if (to.saldo == 0) {
+    printf("Saldo insuficiente!\n");
+    pthread_mutex_unlock(&mutex);
+    return NULL;
+  }
 
   if (to.saldo >= valor) {
     to.saldo -= valor;
@@ -67,8 +79,6 @@ int main() {
   // Inicialização das contas
   from.saldo = 100;
   to.saldo = 100;
-
-  printf("Transferindo 10 para a conta c2\n");
   valor = 10;
 
   pthread_mutex_init(&mutex, NULL); // Inicializa o mutex
