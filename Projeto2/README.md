@@ -9,31 +9,31 @@
 
 # 1. A conta to pode receber mais de uma transferência simultânea;
 
--Aqui vemos a conta to recebendo 5 transferências ao mesmo tempo.
+-Aqui vemos a conta to recebendo 5 transferências com a valor de 20 ao mesmo tempo. (c1 = from; c2 = to)
 
 ![Texto Alternativo](https://github.com/Neto-Sciamarelli/SO/blob/main/Projeto2/teste1.png)
 
 # 2. A conta from pode enviar mais de uma transferência simultânea;
 
--Da mesma forma que antes, a conta from enviando 5 transferências ao mesmo tempo.
+-Da mesma forma que antes, a conta from enviando 5 transferências com o valor de 15 ao mesmo tempo. (c1 = from; c2 = to)
 
 ![Texto Alternativo](https://github.com/Neto-Sciamarelli/SO/blob/main/Projeto2/teste2.png)
 
 # 3. A conta from não pode enviar dinheiro se não tiver mais saldo;
 
--Aqui vemos que não ocorre nada quando o saldo da conta from é insuficiente, apenas uma mensagem é mostrada na tela.
+-Aqui vemos a conta from tentando realizar 3 transferências de 50, porém não ocorre nada quando o saldo da conta from é insuficiente, apenas uma mensagem é mostrada na tela. (c1 = from; c2 = to)
 
 ![Texto Alternativo](https://github.com/Neto-Sciamarelli/SO/blob/main/Projeto2/teste3.png)
 
 # 4. A conta to pode trocar de ordem com a conta from, ou seja, a conta que enviava pode receber e a conta que recebia pode enviar;
 
--Aqui podemos ver as duas contas realizando transferências.
+-Aqui podemos ver as duas contas realizando transferências, 5 partindo da conta from com o valor de 20, e 5 saindo da conta to com o valor de 10. (c1 = from; c2 = to)
 
 ![Texto Alternativo](https://github.com/Neto-Sciamarelli/SO/blob/main/Projeto2/teste4.png)
 
 # 5. Poderão ser realizadas até 100 transações simultâneas de transferência.
    
--Aqui vemos 100 transações sendo realizadas.
+-Aqui vemos 100 transações sendo realizadas, com a conta from realizando as transações com o valor de 20, e a conta to realizando com o valor de 10. (c1 = from; c2 = to)
 
 ![Texto Alternativo](https://github.com/Neto-Sciamarelli/SO/blob/main/Projeto2/Print1.png)
 ![Texto Alternativo](https://github.com/Neto-Sciamarelli/SO/blob/main/Projeto2/Print2.png)
